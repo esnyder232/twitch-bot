@@ -1,26 +1,28 @@
+const tmi = require('tmi.js');
+const twitchBotOauthToken = require("./configs/twitch-bot-oauth-token.json");
+
 console.log("=== Twitch bot started` ===");
-
-
 
 // This is the channel name for the software to connect to.
 var channelName = "miles_gloriosus";
 
 var twitchChatMappings = {
-	"increase1": "+1",
-	"decrease2": "-1",
-	"maxlevel": "max",
-	"minlevel": "min",
-	"baselevel": "base"
+	"!play": playCommand,
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const tmi = require('tmi.js');
+
+
 //twitch connection
 const client = new tmi.Client({
 	connection: {
 		secure: true,
 		reconnect: true
+	},
+	identity: {
+		username: "Not_Miles_Gloriosus",
+		password: twitchBotOauthToken.oauthToken
 	},
 	channels: [ channelName ]
 });
@@ -33,25 +35,28 @@ client.on("connected", () => {
 client.on('message', (channel, tags, message, self) => {
 	console.log("=============== INCOMING MESSAGE ======================");
 	console.log(tags['display-name'] + " - " + message);
-	console.log("-------- CHANNEL:");
-	console.log(channel);
-	console.log("-------- TAGS:");
-	console.log(tags);
-	console.log("-------- MESSAGE:");
-	console.log(message);
-	console.log("-------- SELF:");
-	console.log(self);
-
-	client.say(channelName, `heya!`);
-
+	// console.log("-------- CHANNEL:");
+	// console.log(channel);
+	// console.log("-------- TAGS:");
+	// console.log(tags);
+	// console.log("-------- MESSAGE:");
+	// console.log(message);
+	// console.log("-------- SELF:");
+	// console.log(self);
 
 	//scan message for redeeming points
-	// var trimmedMessage = message.toLowerCase().trim();
-	// var modCmd = twitchChatMappings[trimmedMessage];
-	// if(modCmd !== undefined) {
-	// 	var userMessage = changeBikeLevel(modCmd);
-	// 	if(userMessage === "") {
-	// 		console.log('Changed bike level via chat command. Bike level is now: ' + currentBikeLevel);	
-	// 	}
-	// }
+	var trimmedMessage = message.toLowerCase().trim();
+	var modCmd = twitchChatMappings[trimmedMessage];
+	if(modCmd !== undefined && typeof modCmd === "function") {
+		modCmd(client, channel, tags, message, self);
+	}
 });
+
+
+///////////////////////////////////////////////////////////////////
+// Commands
+function playCommand(client, channel, tags, message, self) {
+	client.say(channel, "https://stockheimer.dontcodethis.com");
+}
+
+///////////////////////////////////////////////////////////////////
