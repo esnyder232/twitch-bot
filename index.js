@@ -6,9 +6,17 @@ console.log("=== Twitch bot started` ===");
 // This is the channel name for the software to connect to.
 var channelName = "miles_gloriosus";
 
-var twitchChatMappings = {
-	"!play": playCommand,
-}
+var twitchChatMappings = [
+	{
+		"type": "string",
+		"key": "!play",
+		"func": playCommand
+	},{
+		"type": "regex",
+		"key": /wanna *become *famous/gi,
+		"func": banSpam
+	}
+]
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,11 +52,24 @@ client.on('message', (channel, tags, message, self) => {
 	// console.log("-------- SELF:");
 	// console.log(self);
 
-	//scan message for redeeming points
-	var trimmedMessage = message.toLowerCase().trim();
-	var modCmd = twitchChatMappings[trimmedMessage];
-	if(modCmd !== undefined && typeof modCmd === "function") {
-		modCmd(client, channel, tags, message, self);
+	//scan for twitch commands
+	for(var i = 0; i < twitchChatMappings.length; i++) {
+		if(twitchChatMappings[i].type === "string") {
+			var trimmedMessage = message.toLowerCase().trim();
+			var found = trimmedMessage.indexOf(twitchChatMappings[i].key);
+			if(found >= 0 && typeof twitchChatMappings[i]["func"] === "function") {
+				console.log("Found twitch string command: " + twitchChatMappings[i].key);
+				twitchChatMappings[i].func(client, channel, tags, message, self);
+			}
+		}
+		else if (twitchChatMappings[i].type === "regex") {
+			var r = /wanna *become *famous/gi;
+			var found = message.match(r);
+			if(found !== null && typeof twitchChatMappings[i]["func"] === "function") {
+				console.log("Found twitch regex command: " + twitchChatMappings[i].key);
+				twitchChatMappings[i].func(client, channel, tags, message, self);
+			}
+		}
 	}
 });
 
@@ -56,7 +77,18 @@ client.on('message', (channel, tags, message, self) => {
 ///////////////////////////////////////////////////////////////////
 // Commands
 function playCommand(client, channel, tags, message, self) {
-	client.say(channel, "https://stockheimer.dontcodethis.com");
+	client.say(channel, "https://stockheimergame.com");
+}
+
+function banSpam(client, channel, tags, message, self) {
+	console.log("Attempting to ban " + tags["display-name"]);
+
+	if(tags["display-name"].toLowerCase() !== "not_miles_gloriosus") {
+		client.say(channel, "/timeout " + tags["display-name"] + " 500 I'm the only bot allowed in this chat.");
+	}
+	else {
+		console.log("Couldn't ban. Its myself.");
+	}
 }
 
 ///////////////////////////////////////////////////////////////////
