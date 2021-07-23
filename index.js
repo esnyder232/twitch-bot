@@ -15,7 +15,12 @@ var twitchChatMappings = [
 		"type": "regex",
 		"key": /wanna *become *famous/gi,
 		"func": banSpam
+	},{
+		"type": "string",
+		"key": "!coolhole",
+		"func": coolholeCommand
 	}
+
 ]
 
 
@@ -79,6 +84,11 @@ client.on('message', (channel, tags, message, self) => {
 function playCommand(client, channel, tags, message, self) {
 	client.say(channel, "https://stockheimergame.com");
 }
+
+function coolholeCommand(client, channel, tags, message, self) {
+	client.say(channel, "https://coolhole.org");
+}
+
 
 function banSpam(client, channel, tags, message, self) {
 	console.log("Attempting to ban " + tags["display-name"]);
