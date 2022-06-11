@@ -13,6 +13,10 @@ var twitchChatMappings = [
 		"func": playCommand
 	},{
 		"type": "regex",
+		"key": /mystrm *\.store/gi,
+		"func": banSpam
+	},{
+		"type": "regex",
 		"key": /wanna *become *famous/gi,
 		"func": banSpam
 	},{
@@ -68,7 +72,7 @@ client.on('message', (channel, tags, message, self) => {
 			}
 		}
 		else if (twitchChatMappings[i].type === "regex") {
-			var r = /wanna *become *famous/gi;
+			var r = twitchChatMappings[i].key;
 			var found = message.match(r);
 			if(found !== null && typeof twitchChatMappings[i]["func"] === "function") {
 				console.log("Found twitch regex command: " + twitchChatMappings[i].key);
